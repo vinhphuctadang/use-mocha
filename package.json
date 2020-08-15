@@ -1,0 +1,16 @@
+{
+  "name": "use-mocha",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "vinhphuctadang",
+  "license": "MIT",
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "axios": "^0.19.2",
+    "express": "^4.17.1",
+    "mocha": "^8.1.1",
+    "mongoose": "^5.9.29"
+  }
+}
