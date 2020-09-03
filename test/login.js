@@ -72,6 +72,28 @@ describe('Auth routes', async()=>{
             assert(data.ok == 1, JSON.stringify(data))
             assert(data.username == 'foo')
         })
+
+        it('should not register a person named foo again, even different password', async()=>{
+            // send request
+
+            try {
+                let resp = await client.post('/auth/register', 
+                {
+                    username: 'foo',
+                    password: 'bar'
+                })
+            } catch(e) {
+
+                assert(e.response.status == 400)
+                
+                let data = e.response.data
+                assert(data.ok == 0, JSON.stringify(data))
+                assert(data.flag == 'userNameExisted')
+                return
+            }
+            
+            throw "Registering user with existed name keep succesfully executed"
+        })
         
         it('should logout and see error when request /me', async()=>{
             let resp = await client.delete('/auth')
