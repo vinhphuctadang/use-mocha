@@ -4,7 +4,7 @@ mongoose.connect(
   'mongodb://localhost:27017',
   {
     useNewUrlParser: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
   }
 )
 
@@ -27,10 +27,8 @@ async function clearDB(){
 
 module.exports = {
   models: models,
+  connection: mongoose.connection,
   clear: clearDB
 }
-// DO NOT RUN THIS SCOPE UNLESS WE ARE IN DEV/TEST STAGE!!!
-// if (require.main === module) {
-//   console.log('Going to clear DB')
-//   clearDB()
-// }
+
+

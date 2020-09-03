@@ -1,6 +1,8 @@
+const axios = require('axios')
 
-describe('first tests', async()=>{
-  it('should run successfully', ()=>{
-    console.log('    test worked !!!')
-  })
+describe('first suites', async()=>{
+    // first test
+    it('should work', async()=>{
+
+    })
 })
