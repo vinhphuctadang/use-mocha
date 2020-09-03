@@ -1,8 +1,18 @@
 let router = require('express').Router()
 let db = require('./db')
 
+function requireLoggedIn(req, res, next) {
+    if (req.session.username) {
+        next()
+    }            
+    else {
+        res.status(401).send({
+            ok: 0,
+            flag: 'unauthenticated'
+        })
+    }
+}
 // check auth module
-
 router.get('/', async(req, res)=>{
     res.send({
         'ok': 1,
@@ -17,45 +27,102 @@ router.post('/', async(req, res) => {
         password 
     } = req.body
 
-    // assign username to session
-    req.session.username = username
-    
-    let log = await req.session.save()
-    console.log('Session id:', req.sessionID)
-    
-    res.send({
-        ok: 1,
-        sessionID: req.sessionID
-    })
-})
-
-// query login status
-router.get('/me', async(req, res)=>{
-    
-    // if session found
-    if (!req.session.username) {
+    if (req.session.username) {
         res.send({
-            ok: 0,
-            status: 'unauthenticated'
+            ok: 1,
+            flag: 'alreadyLoggedIn'
         })
         return
     }
 
-    // session
-    res.send(
+    let user = await db.models.User.findOne(
         {
-            ok: 1,
-            username: req.session.username
+            username: username, 
+            password: password
         }
     )
+
+    if (!user) {
+        res.status(401).send({
+            ok: 0,
+            sessionID: '',
+            flag: 'invalidUser'
+        })
+        return
+    }
+
+    // assign username to session
+    req.session.username = username
+    
+    await req.session.save()
+    
+    // send result
+    res.send({
+        ok: 1,
+        flag: 'loggedIn'
+    })
+})
+
+router.post('/register', async(req, res) => {
+    let {
+        username, 
+        password
+    } = req.body
+    
+    // db queries
+    let user = await db.models.User.findOne(
+        {
+            username: username, 
+        }
+    )
+    if (user) {
+        res.status(400).send({
+            ok: 0,
+            flag: 'userNameExisted'
+        })
+        return
+    }
+
+    // successfully registered
+    let newUser = new db.models.User({
+        username: username, 
+        password: password
+    })
+
+    // log in
+    req.session.username = username
+
+    // save 
+    Promise.all([
+        newUser.save(),
+        req.session.save(),
+    ])
+
+
+    // response result
+    res.send({
+        ok: 1, 
+        username: username,
+        flag: "userRegistered"
+    })
+})
+
+
+// query login status
+router.get('/me', requireLoggedIn, async(req, res)=>{
+    // session
+    res.send({
+        ok: 1,
+        username: req.session.username
+    })
 })
 
 // logout
-router.delete('/', async(req, res) => {
-    req.session.destroy()
+router.delete('/', requireLoggedIn, async(req, res) => {
+    await req.session.destroy()
     res.send({
         ok: 1,
-        status: 'loggedOut'
+        flag: 'loggedOut'
     })
 })
 
