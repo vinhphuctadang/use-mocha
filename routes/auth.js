@@ -42,7 +42,12 @@ router.get('/me', async(req, res)=>{
     }
 
     // session
-    res.send(req.session.username)
+    res.send(
+        {
+            ok: 1,
+            username: req.session.username
+        }
+    )
 })
 
 // logout

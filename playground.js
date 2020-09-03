@@ -13,12 +13,12 @@ async function checkServer(){
 async function login(){
 
     // login 
-    let loginResp = (await axios.post('/auth',
+    let loginResp = await axios.post('/auth',
         {
             username: 'foo',
             password: 'foo'
         },
-    ))
+    )
 
     // set cookie for querying in the future
     const cookie = loginResp.headers["set-cookie"][0];
@@ -27,13 +27,13 @@ async function login(){
 }
 
 async function queryMe(){
-    let res = await axios.get('http://localhost:8080/auth/me', {withCredentials: true})
+    let res = await axios.get('/auth/me', {withCredentials: true})
     let data = res.data
     console.log('Me log:', data)
 }
 
 async function logout(){
-    let res = await axios.delete('http://localhost:8080/auth/')
+    let res = await axios.delete('/auth')
     console.log('Logout:', res.data)
 }
 
